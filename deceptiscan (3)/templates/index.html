@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DeceptiScan - AI-Powered Fake Review Detector</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container header-container">
+      <a href="/" class="logo">
+        <i class="fas fa-microscope"></i>
+        <span>DeceptiScan</span>
+      </a>
+      <nav class="nav">
+        <ul class="nav-list">
+          <li><a href="/" class="nav-link">Home</a></li>
+          <li><a href="#features" class="nav-link">Features</a></li>
+          <li><a href="#how-it-works" class="nav-link">How It Works</a></li>
+        </ul>
+        <button id="theme-toggle" class="theme-toggle">
+          <i class="fas fa-sun"></i>
+          <i class="fas fa-moon"></i>
+        </button>
+      </nav>
+      <button class="mobile-menu-btn" aria-label="Toggle Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="container">
+      <h1 class="hero-title"><span class="text-primary">DeceptiScan</span> — AI-Powered Fake Review Detector</h1>
+      <p class="hero-subtitle">
+        Detect fake product reviews in real-time and get accurate "Real Ratings" based only on authentic reviews.
+      </p>
+      <div class="hero-buttons">
+        <a href="#url-form" class="btn btn-primary">Try It Now</a>
+        <a href="#features" class="btn btn-outline">Learn More</a>
+      </div>
+      <div class="scroll-indicator">
+        <i class="fas fa-arrow-down"></i>
+      </div>
+    </div>
+  </section>
+
+  <section class="container" id="url-form">
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Analyze Product Reviews</h2>
+        <p class="card-description">Enter a product URL to analyze its reviews and get a real rating</p>
+      </div>
+      <div class="card-content">
+        <form id="analysis-form" action="/analyze" method="post">
+          <div class="form-group">
+            <input 
+              type="text" 
+              id="product-url" 
+              name="product_url" 
+              class="input" 
+              placeholder="https://www.example.com/product/123"
+              required
+            >
+            <div class="error-message" id="url-error"></div>
+          </div>
+          <div class="card-footer">
+            <button type="submit" class="btn btn-primary btn-full">
+              <span id="submit-text">Analyze Reviews</span>
+              <span id="loading-spinner" class="hidden">
+                <i class="fas fa-spinner fa-spin"></i> Analyzing...
+              </span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <section class="container section" id="features">
+    <h2 class="section-title">Key Features</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <i class="fas fa-language feature-icon"></i>
+        <h3>Language Stylometry</h3>
+        <p>Detect unnatural and robotic writing styles in reviews</p>
+      </div>
+      <div class="feature-card">
+        <i class="fas fa-comments feature-icon"></i>
+        <h3>Sentiment Analysis</h3>
+        <p>Identify reviews lacking genuine sentiment or emotional tone</p>
+      </div>
+      <div class="feature-card">
+        <i class="fas fa-robot feature-icon"></i>
+        <h3>AI-Generated Text Detection</h3>
+        <p>Detect reviews created by AI models like ChatGPT</p>
+      </div>
+      <div class="feature-card">
+        <i class="fas fa-globe feature-icon"></i>
+        <h3>Cross-Platform Matching</h3>
+        <p>Find duplicated reviews across multiple e-commerce sites</p>
+      </div>
+      <div class="feature-card">
+        <i class="fas fa-user-secret feature-icon"></i>
+        <h3>Reviewer Behavior Analysis</h3>
+        <p>Detect suspicious users and review patterns</p>
+      </div>
+      <div class="feature-card">
+        <i class="fas fa-project-diagram feature-icon"></i>
+        <h3>Network Graph Detection</h3>
+        <p>Uncover coordinated fake review networks</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="container section" id="how-it-works">
+    <h2 class="section-title">How It Works</h2>
+    <div class="workflow">
+      <div class="workflow-step">
+        <div class="workflow-number">1</div>
+        <h3>Input Product URL</h3>
+        <p>Paste any e-commerce product URL into the analyzer</p>
+      </div>
+      <div class="workflow-arrow">
+        <i class="fas fa-arrow-right"></i>
+      </div>
+      <div class="workflow-step">
+        <div class="workflow-number">2</div>
+        <h3>AI Analysis</h3>
+        <p>Multiple ML models analyze each review</p>
+      </div>
+      <div class="workflow-arrow">
+        <i class="fas fa-arrow-right"></i>
+      </div>
+      <div class="workflow-step">
+        <div class="workflow-number">3</div>
+        <h3>Fake Detection</h3>
+        <p>System flags suspicious reviews</p>
+      </div>
+      <div class="workflow-arrow">
+        <i class="fas fa-arrow-right"></i>
+      </div>
+      <div class="workflow-step">
+        <div class="workflow-number">4</div>
+        <h3>Get Real Rating</h3>
+        <p>See the true product rating without fake reviews</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="container section" id="tech-stack">
+    <h2 class="section-title">Technology Stack</h2>
+    <div class="tech-stack-columns">
+      <div class="tech-stack-column">
+        <h3>Frontend</h3>
+        <ul class="tech-list">
+          <li><i class="fab fa-html5"></i> HTML5</li>
+          <li><i class="fab fa-css3-alt"></i> CSS3</li>
+          <li><i class="fab fa-js"></i> JavaScript</li>
+        </ul>
+      </div>
+      <div class="tech-stack-column">
+        <h3>Backend</h3>
+        <ul class="tech-list">
+          <li><i class="fab fa-python"></i> Python</li>
+          <li><i class="fas fa-server"></i> Flask</li>
+          <li><i class="fas fa-database"></i> SQLite</li>
+        </ul>
+      </div>
+      <div class="tech-stack-column">
+        <h3>ML Libraries</h3>
+        <ul class="tech-list">
+          <li><i class="fas fa-brain"></i> scikit-learn</li>
+          <li><i class="fas fa-language"></i> NLTK</li>
+          <li><i class="fas fa-network-wired"></i> TensorFlow</li>
+          <li><i class="fas fa-fire"></i> PyTorch</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-logo">
+          <i class="fas fa-microscope"></i>
+          <span>DeceptiScan</span>
+        </div>
+        <div class="footer-links">
+          <a href="/">Home</a>
+          <a href="#features">Features</a>
+          <a href="#how-it-works">How It Works</a>
+        </div>
+      </div>
+      <div class="footer-copyright">
+        &copy; <span id="current-year"></span> DeceptiScan. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DeceptiScan - Analysis Results</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.min.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container header-container">
+      <a href="/" class="logo">
+        <i class="fas fa-microscope"></i>
+        <span>DeceptiScan</span>
+      </a>
+      <nav class="nav">
+        <ul class="nav-list">
+          <li><a href="/" class="nav-link">Home</a></li>
+          <li><a href="/#features" class="nav-link">Features</a></li>
+          <li><a href="/#how-it-works" class="nav-link">How It Works</a></li>
+        </ul>
+        <button id="theme-toggle" class="theme-toggle">
+          <i class="fas fa-sun"></i>
+          <i class="fas fa-moon"></i>
+        </button>
+      </nav>
+      <button class="mobile-menu-btn" aria-label="Toggle Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <div class="container analysis-header">
+    <div class="back-link">
+      <a href="/" class="btn btn-ghost"><i class="fas fa-arrow-left"></i> Back to Home</a>
+      <span class="badge {{ 'badge-danger' if analysis.fake_percentage > 30 else 'badge-success' }}">
+        Analysis ID: {{ analysis.id }}
+      </span>
+    </div>
+
+    <div class="product-info">
+      <h1>{{ analysis.product_name }}</h1>
+      <p class="text-muted">{{ analysis.url }}</p>
+    </div>
+
+    <div class="alert {{ 'alert-danger' if analysis.fake_percentage > 30 else 'alert-success' }}">
+      <div class="alert-icon">
+        {% if analysis.fake_percentage > 30 %}
+        <i class="fas fa-exclamation-circle"></i>
+        {% else %}
+        <i class="fas fa-check-circle"></i>
+        {% endif %}
+      </div>
+      <div class="alert-content">
+        <h3 class="alert-title">
+          {% if analysis.fake_percentage > 30 %}
+          High number of fake reviews detected!
+          {% else %}
+          Analysis complete
+          {% endif %}
+        </h3>
+        <p>
+          {% if analysis.fake_percentage > 30 %}
+          We found that {{ "%.1f"|format(analysis.fake_percentage) }}% of reviews for this product may be fake.
+          {% else %}
+          We found that {{ "%.1f"|format(100 - analysis.fake_percentage) }}% of reviews for this product appear to be genuine.
+          {% endif %}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="tabs">
+      <div class="tab-list">
+        <button class="tab-button active" data-tab="overview">Overview</button>
+        <button class="tab-button" data-tab="reviews">Reviews</button>
+        <button class="tab-button" data-tab="modules">ML Modules</button>
+        <button class="tab-button" data-tab="insights">Insights</button>
+      </div>
+      
+      <div class="tab-content tab-active" id="overview">
+        <div class="analysis-grid">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Rating Comparison</h2>
+              <p class="card-description">Original vs. Real Rating (after removing fake reviews)</p>
+            </div>
+            <div class="card-content">
+              <div class="rating-comparison">
+                <div class="rating-box">
+                  <p class="rating-label">Original Rating</p>
+                  <div class="stars">
+                    {% for i in range(5) %}
+                      {% if i < analysis.original_rating|int %}
+                        <i class="fas fa-star"></i>
+                      {% elif i < analysis.original_rating %}
+                        <i class="fas fa-star-half-alt"></i>
+                      {% else %}
+                        <i class="far fa-star"></i>
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+                  <p class="rating-number">{{ "%.1f"|format(analysis.original_rating) }}</p>
+                </div>
+                <div class="rating-box">
+                  <p class="rating-label">Real Rating</p>
+                  <div class="stars real-stars">
+                    {% for i in range(5) %}
+                      {% if i < analysis.real_rating|int %}
+                        <i class="fas fa-star"></i>
+                      {% elif i < analysis.real_rating %}
+                        <i class="fas fa-star-half-alt"></i>
+                      {% else %}
+                        <i class="far fa-star"></i>
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+                  <p class="rating-number">{{ "%.1f"|format(analysis.real_rating) }}</p>
+                </div>
+              </div>
+              <div class="rating-difference">
+                {% if analysis.original_rating > analysis.real_rating %}
+                  <p><i class="fas fa-arrow-down text-danger"></i> Rating inflated by {{ "%.1f"|format(analysis.original_rating - analysis.real_rating) }} stars due to fake reviews</p>
+                {% else %}
+                  <p><i class="fas fa-check text-success"></i> Rating is accurate and reflects genuine customer experiences</p>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Review Authenticity</h2>
+              <p class="card-description">Breakdown of genuine vs. fake reviews</p>
+            </div>
+            <div class="card-content">
+              <div class="progress-item">
+                <div class="progress-label">
+                  <span>Genuine Reviews</span>
+                  <span class="progress-value">{{ "%.1f"|format(100 - analysis.fake_percentage) }}%</span>
+                </div>
+                <div class="progress">
+                  <div class="progress-bar progress-success" style="width: {{ 100 - analysis.fake_percentage }}%"></div>
+                </div>
+              </div>
+
+              <div class="progress-item">
+                <div class="progress-label">
+                  <span>Fake Reviews</span>
+                  <span class="progress-value">{{ "%.1f"|format(analysis.fake_percentage) }}%</span>
+                </div>
+                <div class="progress">
+                  <div class="progress-bar progress-danger" style="width: {{ analysis.fake_percentage }}%"></div>
+                </div>
+              </div>
+
+              <div class="reviews-total">
+                <span>Total Reviews Analyzed</span>
+                <span>{{ analysis.total_reviews }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Analysis Summary</h2>
+            <p class="card-description">Key findings from our AI analysis</p>
+          </div>
+          <div class="card-content">
+            <div class="module-summary-grid">
+              {% for module in analysis.modules %}
+              <div class="module-summary">
+                <div class="module-header">
+                  <h3>{{ module.name }}</h3>
+                  <span class="badge {{ 'badge-danger' if module.score > 75 else 'badge-outline' }}">{{ module.score }}%</span>
+                </div>
+                <p class="module-insight">{{ module.insights[0] }}</p>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="reviews">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Product Reviews</h2>
+            <div class="filter-buttons">
+              <button class="btn btn-sm btn-outline filter-btn active" data-filter="all">
+                All ({{ analysis.total_reviews }})
+              </button>
+              <button class="btn btn-sm btn-outline filter-btn success-outline" data-filter="genuine">
+                Genuine ({{ analysis.total_reviews - analysis.fake_reviews }})
+              </button>
+              <button class="btn btn-sm btn-outline filter-btn danger-outline" data-filter="fake">
+                Fake ({{ analysis.fake_reviews }})
+              </button>
+            </div>
+          </div>
+          <div class="card-content">
+            <div class="reviews-list">
+              {% for review in analysis.reviews %}
+              <div class="review-item" 
+                   data-review-type="{{ 'fake' if review.is_fake else 'genuine' }}">
+                <div class="review-header">
+                  <div class="review-meta">
+                    <div class="review-stars">
+                      {% for i in range(5) %}
+                        {% if i < review.rating %}
+                          <i class="fas fa-star"></i>
+                        {% else %}
+                          <i class="far fa-star"></i>
+                        {% endif %}
+                      {% endfor %}
+                    </div>
+                    <span class="review-author">{{ review.author }}</span>
+                    {% if review.verified %}
+                    <span class="badge badge-outline badge-sm">Verified Purchase</span>
+                    {% endif %}
+                  </div>
+                  {% if review.is_fake %}
+                  <span class="badge badge-danger">
+                    <i class="fas fa-exclamation-circle"></i> Fake Review
+                  </span>
+                  {% else %}
+                  <span class="badge badge-success">
+                    <i class="fas fa-check-circle"></i> Genuine Review
+                  </span>
+                  {% endif %}
+                </div>
+
+                <p class="review-text">{{ review.text }}</p>
+
+                <div class="review-footer">
+                  <span class="review-date">Posted on {{ review.date }}</span>
+                  {% if review.is_fake %}
+                  <span class="fake-score">Fake score: {{ (review.fake_score * 100)|int }}%</span>
+                  {% endif %}
+                </div>
+
+                {% if review.is_fake and review.fake_reasons|length > 0 %}
+                <div class="review-reasons">
+                  <p>Reasons flagged as fake:</p>
+                  <div class="reasons-badges">
+                    {% for reason in review.fake_reasons %}
+                    <span class="badge badge-outline badge-sm">{{ reason }}</span>
+                    {% endfor %}
+                  </div>
+                </div>
+                {% endif %}
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="modules">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">ML Module Results</h2>
+            <p class="card-description">Detailed results from each analysis module</p>
+          </div>
+          <div class="card-content">
+            <div class="accordion">
+              {% for module in analysis.modules %}
+              <div class="accordion-item">
+                <div class="accordion-header">
+                  <div class="accordion-title">
+                    <span>{{ module.name }}</span>
+                    <span class="badge {{ 'badge-danger' if module.score > 75 else 'badge-outline' }}">{{ module.score }}%</span>
+                  </div>
+                  <i class="fas fa-chevron-down accordion-icon"></i>
+                </div>
+                <div class="accordion-content">
+                  <div class="module-details">
+                    <p class="module-description">{{ module.description }}</p>
+
+                    <div class="progress-item">
+                      <div class="progress-label">
+                        <span>Detection Confidence</span>
+                        <span class="progress-value">{{ module.score }}%</span>
+                      </div>
+                      <div class="progress">
+                        <div class="progress-bar" style="width: {{ module.score }}%"></div>
+                      </div>
+                    </div>
+
+                    <div class="module-insights">
+                      <h4>Key Insights:</h4>
+                      <ul>
+                        {% for insight in module.insights %}
+                        <li>{{ insight }}</li>
+                        {% endfor %}
+                      </ul>
+                    </div>
+
+                    <div class="flagged-count">
+                      <p>Flagged {{ module.flagged_reviews|length }} reviews</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Technical Details</h2>
+            <p class="card-description">Information about the ML models used in the analysis</p>
+          </div>
+          <div class="card-content">
+            <div class="tech-details-grid">
+              <div class="tech-detail-box">
+                <h3>Language Stylometry</h3>
+                <p>Uses SVM and BERT models to detect patterns in writing style typical of bots and AI-generated content.</p>
+                <div class="tech-badges">
+                  <span class="badge badge-outline">SVM</span>
+                  <span class="badge badge-outline">BERT</span>
+                </div>
+              </div>
+              
+              <div class="tech-detail-box">
+                <h3>Sentiment & Emotion Detection</h3>
+                <p>Uses VADER and RoBERTa to classify emotional tone and detect unnatural sentiment patterns.</p>
+                <div class="tech-badges">
+                  <span class="badge badge-outline">VADER</span>
+                  <span class="badge badge-outline">RoBERTa</span>
+                </div>
+              </div>
+              
+              <div class="tech-detail-box">
+                <h3>GAN Detection</h3>
+                <p>Specialized models to detect content generated by large language models like ChatGPT.</p>
+                <div class="tech-badges">
+                  <span class="badge badge-outline">GPT-2 Output Detector</span>
+                  <span class="badge badge-outline">RoBERTa</span>
+                </div>
+              </div>
+              
+              <div class="tech-detail-box">
+                <h3>Network Graph Detection</h3>
+                <p>Graph-based algorithms to detect coordinated fake review networks and spam campaigns.</p>
+                <div class="tech-badges">
+                  <span class="badge badge-outline">NetworkX</span>
+                  <span class="badge badge-outline">Community Detection</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="insights">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Key Insights</h2>
+            <p class="card-description">Detailed analysis and recommendations</p>
+          </div>
+          <div class="card-content">
+            <div class="insights-section">
+              <h3>Review Quality</h3>
+              <p>
+                {% if analysis.fake_percentage > 30 %}
+                This product has a concerning number of fake reviews that artificially inflate its rating.
+                {% else %}
+                This product has mostly genuine reviews that accurately reflect customer experiences.
+                {% endif %}
+              </p>
+              <div class="alert">
+                <h4 class="alert-title">Real Rating: {{ "%.1f"|format(analysis.real_rating) }} / 5</h4>
+                <p>After filtering out fake reviews, the product's actual rating is {{ "%.1f"|format(analysis.real_rating) }} compared to the original {{ "%.1f"|format(analysis.original_rating) }}.</p>
+              </div>
+            </div>
+
+            <div class="insights-section">
+              <h3>Common Patterns in Fake Reviews</h3>
+              <ul class="insights-list">
+                <li>Excessive use of superlatives and generic praise</li>
+                <li>Lack of specific details about product usage</li>
+                <li>Reviews from new accounts with limited history</li>
+                <li>Similar or duplicate content across multiple reviews</li>
+                <li>Extreme ratings (1 or 5 stars) without substantive feedback</li>
+              </ul>
+            </div>
+
+            <div class="insights-section">
+              <h3>Recommendations</h3>
+              <ul class="insights-list">
+                <li>Focus on reviews with verified purchases</li>
+                <li>Look for detailed reviews that mention specific use cases</li>
+                <li>Consider reviews that mention both pros and cons</li>
+                <li>Pay attention to reviews with photos or videos of the product in use</li>
+                <li>Check for reviews from established accounts with review history</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-logo">
+          <i class="fas fa-microscope"></i>
+          <span>DeceptiScan</span>
+        </div>
+        <div class="footer-links">
+          <a href="/">Home</a>
+          <a href="/#features">Features</a>
+          <a href="/#how-it-works">How It Works</a>
+        </div>
+      </div>
+      <div class="footer-copyright">
+        &copy; <span id="current-year"></span> DeceptiScan. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
+  <script src="{{ url_for('static', filename='js/analysis.js') }}"></script>
+</body>
+</html>
